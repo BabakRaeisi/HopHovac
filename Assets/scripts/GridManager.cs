@@ -6,7 +6,7 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [SerializeField] Vector2Int gridSize;
-    [SerializeField] int unityGridSize=1;
+    [SerializeField] int unityGridSize;
     public int UnityGridSize { get { return unityGridSize; } }
 
     Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
