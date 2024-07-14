@@ -8,11 +8,10 @@ public class PlayerMovement : MonoBehaviour
     // Target position for smooth movement
     private Vector3 targetPos;
 
-    // Speed of movement
-    public float moveSpeed = 5f;
+    [SerializeField]
+    private GridManager gridManager;
 
-    // Speed of rotation
-    public float rotationSpeed = 720f;
+    private Node currentNode;
 
     // Size of each cell
     private int cellSize = 2;
@@ -22,6 +21,18 @@ public class PlayerMovement : MonoBehaviour
 
     // The target rotation direction
     private Vector3 targetDirection;
+
+    // Speed of movement
+    public float moveSpeed = 5f;
+
+    // Speed of rotation
+    public float rotationSpeed = 720f;
+
+    private void Awake()
+    {
+        gridManager = FindAnyObjectByType<GridManager>();
+    }
+
 
     void Start()
     {
@@ -35,6 +46,8 @@ public class PlayerMovement : MonoBehaviour
         // Ensure the transform position is correctly set
         transform.position = targetPos;
         targetDirection = transform.forward;
+
+        currentNode = gridManager.GetNode(currentPos);
     }
 
     void Update()

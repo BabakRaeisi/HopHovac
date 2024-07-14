@@ -1,5 +1,3 @@
-
-
 using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 using UnityEngine.UIElements;
