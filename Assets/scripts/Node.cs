@@ -1,37 +1,47 @@
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Node
 {
-    public Vector2Int cords;
-    private Color defaultColor = Color.white;
-    private Color Color;
+    public Vector2Int Coordinates { get; private set; }
+    private Color nodeColor;
     private Player owner;
+    private GameObject tileGameObject;
 
-
-    public Node(Vector2Int cords)
+    public Node(Vector2Int coordinates, GameObject tileGameObject)
     {
-        this.cords = cords;
+        this.Coordinates = coordinates;
+        this.tileGameObject = tileGameObject;
+        this.nodeColor = Color.white;  // Default color
     }
 
-
-    void SetOwner(Player owner)
+    public Player Owner
     {
-        this.owner = owner;
-    }
-    void SetColor(Color color)
-    {
-        this.Color = color;
+        get { return owner; }
+        set { owner = value; }
     }
 
-    public void ResetNode() 
+    public Color NodeColor
     {
-    this.owner = null;
-
+        get { return nodeColor; }
+        set
+        {
+            nodeColor = value;
+            UpdateTileColor();
+        }
     }
 
-    
-     
+    public void ResetNode()
+    {
+        this.Owner = null;
+        this.NodeColor = Color.white;
+    }
+
+    private void UpdateTileColor()
+    {
+        Tile tileScript = tileGameObject.GetComponent<Tile>();
+        if (tileScript != null)
+        {
+            tileScript.SetColor(nodeColor);
+        }
+    }
 }
-

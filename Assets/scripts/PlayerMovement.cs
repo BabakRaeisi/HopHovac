@@ -2,52 +2,58 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // Current position of the object in grid coordinates
     private Vector2Int currentPos;
-
-    // Target position for smooth movement
     private Vector3 targetPos;
-
-    [SerializeField]
-    private GridManager gridManager;
-
+    public float moveSpeed = 5f;
+    public float rotationSpeed = 720f;
+    private bool isMoving = false;
+    private Vector3 targetDirection;
     private Node currentNode;
 
-    // Size of each cell
-    private int cellSize = 2;
+    [SerializeField] private ColorManager colorManager; // Use the concrete class here
+    public int playerIndex;  // Index for the player's color
 
-    // Flag to determine if movement is ongoing
-    private bool isMoving = false;
-
-    // The target rotation direction
-    private Vector3 targetDirection;
-
-    // Speed of movement
-    public float moveSpeed = 5f;
-
-    // Speed of rotation
-    public float rotationSpeed = 720f;
-
-    private void Awake()
-    {
-        gridManager = FindAnyObjectByType<GridManager>();
-    }
-
+    // Reference to the GridManager
+    [SerializeField] private GridManager gridManager; // Make this field visible in the Inspector
 
     void Start()
     {
-        // Get the initial position from the transform
+        if (gridManager == null)
+        {
+            Debug.LogError("GridManager is not assigned!");
+            return;
+        }
+
+        if (colorManager == null)
+        {
+            Debug.LogError("ColorManager is not assigned!");
+            return;
+        }
+
         Vector3 initialPosition = transform.position;
+        currentPos = new Vector2Int(
+            Mathf.RoundToInt(initialPosition.x / gridManager.UnityGridSize),
+            Mathf.RoundToInt(initialPosition.z / gridManager.UnityGridSize)
+        );
 
-        // Convert the initial position to grid coordinates
-        currentPos = new Vector2Int(Mathf.RoundToInt(initialPosition.x / cellSize), Mathf.RoundToInt(initialPosition.z / cellSize));
-        targetPos = new Vector3(currentPos.x * cellSize, 0, currentPos.y * cellSize);
-
-        // Ensure the transform position is correctly set
+        targetPos = new Vector3(currentPos.x * gridManager.UnityGridSize, 0, currentPos.y * gridManager.UnityGridSize);
         transform.position = targetPos;
         targetDirection = transform.forward;
 
-        currentNode = gridManager.GetNode(currentPos);
+        // Get the initial node and change its color
+        currentNode = gridManager.GetNodeAtPosition(currentPos);
+        if (currentNode != null)
+        {
+            Debug.Log($"Setting color for currentNode at position: {currentPos}");
+            IColorManager colorManagerInterface = colorManager; // Cast to interface
+            Color playerColor = colorManagerInterface.GetPlayerColor(playerIndex);
+            Debug.Log($"Player color obtained: {playerColor}");
+            currentNode.NodeColor = playerColor;
+        }
+        else
+        {
+            Debug.LogError("Current node is null at start. Position: " + currentPos);
+        }
     }
 
     void Update()
@@ -83,28 +89,41 @@ public class PlayerMovement : MonoBehaviour
     void MoveObject(Vector2Int direction)
     {
         Vector2Int newPosition = currentPos + direction;
-
-        // Check if the new position is within grid bounds
+        Debug.Log($"Moving to new position: {newPosition}");
         if (IsValidPosition(newPosition))
         {
             currentPos = newPosition;
-            targetPos = new Vector3(currentPos.x * cellSize, 0, currentPos.y * cellSize);
-
-            // Set the target direction based on the direction of movement
+            targetPos = new Vector3(currentPos.x * gridManager.UnityGridSize, 0, currentPos.y * gridManager.UnityGridSize);
             targetDirection = new Vector3(direction.x, 0, direction.y);
-
             isMoving = true;
+
+            // Get the new node and change its color if different
+            Node newNode = gridManager.GetNodeAtPosition(currentPos);
+            if (newNode != null)
+            {
+                if (newNode != currentNode)
+                {
+                    IColorManager colorManagerInterface = colorManager; // Cast to interface
+                    newNode.NodeColor = colorManagerInterface.GetPlayerColor(playerIndex);
+                    currentNode = newNode;
+                }
+            }
+            else
+            {
+                Debug.LogError("New node is null. Position: " + newPosition);
+            }
+        }
+        else
+        {
+            Debug.LogError("Invalid position: " + newPosition);
         }
     }
 
     void SmoothMove()
     {
-        // Lerp towards the target position
         if (isMoving)
         {
             transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * moveSpeed);
-
-            // Check if the object has reached the target position
             if (Vector3.Distance(transform.position, targetPos) < 0.1f)
             {
                 transform.position = targetPos;
@@ -115,7 +134,6 @@ public class PlayerMovement : MonoBehaviour
 
     void SmoothRotate()
     {
-        // Smoothly rotate towards the target direction
         if (isMoving)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
@@ -125,7 +143,11 @@ public class PlayerMovement : MonoBehaviour
 
     bool IsValidPosition(Vector2Int position)
     {
-        // Check if the position is within the 8x8 grid bounds
-        return position.x >= 0 && position.x < 8 && position.y >= 0 && position.y < 8;
+        bool isValid = gridManager.GetNodeAtPosition(position) != null;
+        if (!isValid)
+        {
+            Debug.LogError("Position is not valid in the grid: " + position);
+        }
+        return isValid;
     }
 }

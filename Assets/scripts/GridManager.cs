@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
+using System.Collections.Generic;
 
 public class GridManager : MonoBehaviour
 {
@@ -9,39 +7,63 @@ public class GridManager : MonoBehaviour
     [SerializeField] int unityGridSize;
     public int UnityGridSize { get { return unityGridSize; } }
 
+    [SerializeField] List<GameObject> tileGameObjects;  // Manually assign these in the editor
     Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
-    public Dictionary<Vector2Int, Node> Gride { get { return grid; } }
+    public Dictionary<Vector2Int, Node> Grid { get { return grid; } }
 
     private void Awake()
     {
-       initializeGrid();
+        InitializeGrid();
     }
 
-    void initializeGrid()
+    void InitializeGrid()
     {
-        for (int x = 0; x < gridSize.x; x++)
+        foreach (GameObject tileObject in tileGameObjects)
         {
-            for (int y = 0; y < gridSize.y; y++)
+            Tile tile = tileObject.GetComponent<Tile>();
+            if (tile != null)
             {
-                Vector2Int cords = new Vector2Int(x, y);
-                grid.Add(cords, new Node(cords));
+                Vector3 position = tileObject.transform.position;
+                Vector2Int coordinates = new Vector2Int(
+                    Mathf.RoundToInt(position.x / unityGridSize),
+                    Mathf.RoundToInt(position.z / unityGridSize)
+                );
 
+                Node node = new Node(coordinates, tileObject);
+                grid.Add(coordinates, node);
+
+                // Set the initial color of the tile based on the node's color
+                tile.SetColor(node.NodeColor);
+
+                Debug.Log($"Added Node at {coordinates} for Tile at {position}");
+            }
+            else
+            {
+                Debug.LogError($"Tile object {tileObject.name} does not have a Tile component.");
             }
         }
     }
-    public Node GetNode(Vector2Int pos) 
+
+    public Node GetNodeAtPosition(Vector2Int position)
     {
-        if (grid.ContainsKey(pos))
+        if (grid.ContainsKey(position))
         {
-            return grid[pos];
+            return grid[position];
         }
-        return null;
+        else
+        {
+            Debug.LogError($"No node found at position {position}");
+            return null;
+        }
     }
-  
 
+    public Node GetNodeFromWorldPosition(Vector3 worldPosition)
+    {
+        Vector2Int gridPosition = new Vector2Int(
+            Mathf.RoundToInt(worldPosition.x / unityGridSize),
+            Mathf.RoundToInt(worldPosition.z / unityGridSize)
+        );
 
+        return GetNodeAtPosition(gridPosition);
+    }
 }
-
-    
-
-
