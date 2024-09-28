@@ -14,41 +14,51 @@ public class PlayerMovement : MonoBehaviour
     public int playerIndex;  // Index for the player's color
 
     // Reference to the GridManager
-    [SerializeField] private GridManager gridManager; // Make this field visible in the Inspector
+    [SerializeField] private GridManager gridManager;
 
     void Start()
     {
-        if (gridManager == null)
-        {
-            Debug.LogError("GridManager is not assigned!");
-            return;
-        }
+        InitializeManagers();
+        InitializePosition();
+        InitializeCurrentNode();
+    }
 
+    void InitializeManagers()
+    {
         if (colorManager == null)
         {
-            Debug.LogError("ColorManager is not assigned!");
-            return;
+            colorManager = FindObjectOfType<ColorManager>();
         }
 
+        if (gridManager == null)
+        {
+            gridManager = FindObjectOfType<GridManager>();
+        }
+
+        if (colorManager == null || gridManager == null)
+        {
+            Debug.LogError("Failed to initialize ColorManager or GridManager.");
+        }
+    }
+
+    void InitializePosition()
+    {
         Vector3 initialPosition = transform.position;
         currentPos = new Vector2Int(
             Mathf.RoundToInt(initialPosition.x / gridManager.UnityGridSize),
             Mathf.RoundToInt(initialPosition.z / gridManager.UnityGridSize)
         );
-
         targetPos = new Vector3(currentPos.x * gridManager.UnityGridSize, 0, currentPos.y * gridManager.UnityGridSize);
         transform.position = targetPos;
         targetDirection = transform.forward;
+    }
 
-        // Get the initial node and change its color
+    void InitializeCurrentNode()
+    {
         currentNode = gridManager.GetNodeAtPosition(currentPos);
         if (currentNode != null)
         {
-            Debug.Log($"Setting color for currentNode at position: {currentPos}");
-            IColorManager colorManagerInterface = colorManager; // Cast to interface
-            Color playerColor = colorManagerInterface.GetPlayerColor(playerIndex);
-            Debug.Log($"Player color obtained: {playerColor}");
-            currentNode.NodeColor = playerColor;
+            UpdateNodeColor();
         }
         else
         {
@@ -68,54 +78,25 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        if (Input.GetKey(KeyCode.LeftArrow))
+        // Here you can handle input for moving the player to a new tile
+        // For example, use input to modify currentPos and targetPos
+        // currentPos = new Vector2Int(...); (movement logic)
+
+        // Validate new position
+        if (IsValidPosition(currentPos))
         {
-            MoveObject(Vector2Int.left);
-        }
-        else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            MoveObject(Vector2Int.right);
-        }
-        else if (Input.GetKey(KeyCode.UpArrow))
-        {
-            MoveObject(Vector2Int.up);
-        }
-        else if (Input.GetKey(KeyCode.DownArrow))
-        {
-            MoveObject(Vector2Int.down);
+            targetPos = new Vector3(currentPos.x * gridManager.UnityGridSize, 0, currentPos.y * gridManager.UnityGridSize);
+            isMoving = true;
+            UpdateNodeColor();
         }
     }
 
-    void MoveObject(Vector2Int direction)
+    void UpdateNodeColor()
     {
-        Vector2Int newPosition = currentPos + direction;
-        Debug.Log($"Moving to new position: {newPosition}");
-        if (IsValidPosition(newPosition))
+        currentNode = gridManager.GetNodeAtPosition(currentPos);
+        if (currentNode != null)
         {
-            currentPos = newPosition;
-            targetPos = new Vector3(currentPos.x * gridManager.UnityGridSize, 0, currentPos.y * gridManager.UnityGridSize);
-            targetDirection = new Vector3(direction.x, 0, direction.y);
-            isMoving = true;
-
-            // Get the new node and change its color if different
-            Node newNode = gridManager.GetNodeAtPosition(currentPos);
-            if (newNode != null)
-            {
-                if (newNode != currentNode)
-                {
-                    IColorManager colorManagerInterface = colorManager; // Cast to interface
-                    newNode.NodeColor = colorManagerInterface.GetPlayerColor(playerIndex);
-                    currentNode = newNode;
-                }
-            }
-            else
-            {
-                Debug.LogError("New node is null. Position: " + newPosition);
-            }
-        }
-        else
-        {
-            Debug.LogError("Invalid position: " + newPosition);
+            currentNode.SetOwner(this);  // This will automatically update the tile's color
         }
     }
 
@@ -123,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isMoving)
         {
-            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * moveSpeed);
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * moveSpeed);
             if (Vector3.Distance(transform.position, targetPos) < 0.1f)
             {
                 transform.position = targetPos;

@@ -3,45 +3,31 @@ using UnityEngine;
 public class Node
 {
     public Vector2Int Coordinates { get; private set; }
+    public Tile Tile { get; private set; }
+    public Player Owner { get; private set; }
+
+    // Color property updates the tile when changed
     private Color nodeColor;
-    private Player owner;
-    private GameObject tileGameObject;
-
-    public Node(Vector2Int coordinates, GameObject tileGameObject)
-    {
-        this.Coordinates = coordinates;
-        this.tileGameObject = tileGameObject;
-        this.nodeColor = Color.white;  // Default color
-    }
-
-    public Player Owner
-    {
-        get { return owner; }
-        set { owner = value; }
-    }
-
     public Color NodeColor
     {
         get { return nodeColor; }
         set
         {
             nodeColor = value;
-            UpdateTileColor();
+            Tile.SetColor(nodeColor); // Automatically update tile appearance
         }
     }
 
-    public void ResetNode()
+    public Node(Vector2Int coordinates, Tile tile)
     {
-        this.Owner = null;
-        this.NodeColor = Color.white;
+        Coordinates = coordinates;
+        Tile = tile;
+        NodeColor = Color.white; // Default tile color
     }
 
-    private void UpdateTileColor()
+    public void SetOwner(Player player)
     {
-        Tile tileScript = tileGameObject.GetComponent<Tile>();
-        if (tileScript != null)
-        {
-            tileScript.SetColor(nodeColor);
-        }
+        Owner = player;
+        NodeColor = player.PlayerColor; // Automatically set color based on owner
     }
 }

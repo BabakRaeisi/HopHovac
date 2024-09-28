@@ -11,7 +11,7 @@ public class GridManager : MonoBehaviour
     Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
     public Dictionary<Vector2Int, Node> Grid { get { return grid; } }
 
-    private void Awake()
+    void Awake()
     {
         InitializeGrid();
     }
@@ -20,28 +20,38 @@ public class GridManager : MonoBehaviour
     {
         foreach (GameObject tileObject in tileGameObjects)
         {
-            Tile tile = tileObject.GetComponent<Tile>();
-            if (tile != null)
-            {
-                Vector3 position = tileObject.transform.position;
-                Vector2Int coordinates = new Vector2Int(
-                    Mathf.RoundToInt(position.x / unityGridSize),
-                    Mathf.RoundToInt(position.z / unityGridSize)
-                );
-
-                Node node = new Node(coordinates, tileObject);
-                grid.Add(coordinates, node);
-
-                // Set the initial color of the tile based on the node's color
-                tile.SetColor(node.NodeColor);
-
-                Debug.Log($"Added Node at {coordinates} for Tile at {position}");
-            }
-            else
-            {
-                Debug.LogError($"Tile object {tileObject.name} does not have a Tile component.");
-            }
+            AddNodeToGrid(tileObject);
         }
+    }
+
+    void AddNodeToGrid(GameObject tileObject)
+    {
+        Tile tile = tileObject.GetComponent<Tile>();
+        if (tile != null)
+        {
+            Vector2Int coordinates = GetTileCoordinates(tileObject.transform.position);
+            Node node = CreateNode(coordinates, tile);
+            grid.Add(coordinates, node);
+
+            Debug.Log($"Added Node at {coordinates} for tile: {tileObject.name}");
+        }
+        else
+        {
+            Debug.LogError("Tile component missing on tile object: " + tileObject.name);
+        }
+    }
+
+    Vector2Int GetTileCoordinates(Vector3 position)
+    {
+        return new Vector2Int(
+            Mathf.RoundToInt(position.x / unityGridSize),
+            Mathf.RoundToInt(position.z / unityGridSize)
+        );
+    }
+
+    Node CreateNode(Vector2Int coordinates, Tile tile)
+    {
+        return new Node(coordinates, tile);
     }
 
     public Node GetNodeAtPosition(Vector2Int position)
@@ -57,7 +67,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public Node GetNodeFromWorldPosition(Vector3 worldPosition)
+    public Node GetNodeFromWorldPosition(Vector3 worldPosition) // I dont remember why I had made this 
     {
         Vector2Int gridPosition = new Vector2Int(
             Mathf.RoundToInt(worldPosition.x / unityGridSize),
