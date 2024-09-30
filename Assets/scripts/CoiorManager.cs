@@ -12,7 +12,7 @@ public class ColorManager : MonoBehaviour, IColorManager
         }
         else
         {
-            Debug.LogError("Player index out of range!");
+            Debug.LogError("PlayerData index out of range!");
             return Color.white;
         }
     }

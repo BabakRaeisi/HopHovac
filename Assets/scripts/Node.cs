@@ -4,7 +4,7 @@ public class Node
 {
     public Vector2Int Coordinates { get; private set; }
     public Tile Tile { get; private set; }
-    public Player Owner { get; private set; }
+    public PlayerData Owner { get; private set; }
 
     // Color property updates the tile when changed
     private Color nodeColor;
@@ -25,9 +25,11 @@ public class Node
         NodeColor = Color.white; // Default tile color
     }
 
-    public void SetOwner(Player player)
+    public void SetOwner(PlayerData player)
     {
         Owner = player;
-        NodeColor = player.PlayerColor; // Automatically set color based on owner
+        SetColor(Owner.PlayerColor);
     }
+
+    public void SetColor(Color color) { NodeColor =  color; }
 }

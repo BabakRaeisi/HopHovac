@@ -8973,8 +8973,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d10efcaa108a6a8429927ab0b024029f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  rotationSpeed: 720
+  player: {fileID: 11400000, guid: ed6bcd2af74b98d47ab24a291e490534, type: 2}
   colorManager: {fileID: 1833228087}
   playerIndex: 0
   gridManager: {fileID: 531884413}
