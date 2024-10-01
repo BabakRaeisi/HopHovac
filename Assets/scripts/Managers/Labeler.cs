@@ -7,7 +7,7 @@ using TMPro;
 public class Labeler : MonoBehaviour
 {
     Vector2Int cords = new Vector2Int();
-    [SerializeField]GridManager grid;
+    [SerializeField]GridSystem grid;
     [SerializeField]TextMeshPro label;
 
 
@@ -18,7 +18,7 @@ public class Labeler : MonoBehaviour
     [ContextMenu("DisplayInfo")]
     public void DisplayCords()
     {
-        grid = FindObjectOfType<GridManager>();
+        grid = FindObjectOfType<GridSystem>();
         label = GetComponentInChildren<TextMeshPro>();
         if (!grid) { return; }
         cords.x = Mathf.RoundToInt(transform.position.x / grid.UnityGridSize );

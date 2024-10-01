@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class GridManager : MonoBehaviour
+public class GridSystem : MonoBehaviour
 {
     [SerializeField] Vector2Int gridSize;
     [SerializeField] int unityGridSize;
