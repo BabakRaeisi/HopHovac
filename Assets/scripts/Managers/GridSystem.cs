@@ -54,11 +54,21 @@ public class GridSystem : MonoBehaviour
         return new Node(coordinates, tile);
     }
 
-    public bool IsValidPosition(Vector2Int position)
+    public bool isValidPosition(Vector2Int targetPosition)
     {
-        if (GetNodeAtPosition(position)
-        return GetNodeAtPosition(position) != null;  
+        Node targetNode = GetNodeAtPosition(targetPosition);
 
+        if (targetNode == null)
+        {
+            return false; // Out of bounds or invalid position
+        }
+
+        if (targetNode.isOccupied)
+        {
+            return false; // Tile is occupied, so the position is not valid
+        }
+
+        return true; // Position is valid and tile is free
     }
 
     public Node GetNodeAtPosition(Vector2Int position)

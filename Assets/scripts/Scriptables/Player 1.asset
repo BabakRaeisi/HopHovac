@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerName: Player1
   speed: 5
-  playerColor: {r: 0.17647056, g: 0.602221, b: 0.7921569, a: 1}
+  playerColor: {r: 0.29076165, g: 0.7921569, b: 0.17647056, a: 1}
   points: 0
   rotationSpeed: 720

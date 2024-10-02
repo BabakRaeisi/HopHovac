@@ -6,7 +6,12 @@ public class Node
     public Tile Tile { get; private set; }
     public PlayerData Owner { get; private set; }
 
+    public bool isOccupied = false;
 
+    public void SetOccupied(bool state)
+    {
+        isOccupied = state;
+    }
 
     // Color property updates the tile when changed
     private Color nodeColor;
