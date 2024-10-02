@@ -34,4 +34,5 @@ public class Movement : MonoBehaviour
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * playerData.RotationSpeed);
         }
     }
+    
 }

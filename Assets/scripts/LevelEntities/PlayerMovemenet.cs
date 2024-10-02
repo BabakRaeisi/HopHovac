@@ -1,80 +1,92 @@
+
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Movement movement; // Reference to the Movement component
-    private Vector2Int currentPos; // Current grid position of the player
-    private Vector3 targetPos; // Target position in world space
-    private bool isMoving = false; // Track if the player is currently moving
     private GridSystem gridSystem; // Reference to the GridSystem
+    private Movement movement; // Movement logic handling
 
-    void Awake()
+    private Vector2Int currentPos; // Current grid position
+    private Vector3 targetPos; // Target position in world space
+
+    private bool isMoving = false; // Is the player currently moving
+    private Vector2Int inputDirection = Vector2Int.zero; // The direction the player is moving in
+    public PlayerData playerData; // Player data including speed, points, etc.
+
+    private void Awake()
     {
-        movement = gameObject.GetComponent<Movement>(); // Add Movement component
+        movement = GetComponent<Movement>();
         gridSystem = FindObjectOfType<GridSystem>(); // Get the GridSystem instance
-        InitializePosition(); // Initialize the player's position
-
-        PlayerInput playerInput = GetComponent<PlayerInput>(); // Get the PlayerInput component
-        playerInput.actions["Move"].performed += OnMove; // Handle movement input
-        playerInput.actions["Move"].canceled += OnMoveCanceled; // Stop movement on key release
+        InitializePosition(); // Set the initial position on the grid
     }
 
-    void Update()
+    private void Update()
     {
-        if (isMoving) // Only handle movement if the player is currently moving
+        if (!isMoving)
         {
-            SmoothMove(); // Call SmoothMove to move the player towards the target
+            HandleInput(); // Only accept new input when not moving
+        }
+        else
+        {
+            SmoothMove(); // Continue moving towards the target position
         }
     }
 
-    private void OnMove(InputAction.CallbackContext context)
+    private void HandleInput()
     {
-        Vector2 input = context.ReadValue<Vector2>();
-        HandleMovement(input); // Handle movement based on input
-    }
+        inputDirection = Vector2Int.zero;
 
-    private void OnMoveCanceled(InputAction.CallbackContext context)
-    {
-        isMoving = false; // Stop movement when the input is canceled
-    }
-
-    private void HandleMovement(Vector2 input)
-    {
-        Vector2Int moveDirection = new Vector2Int(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
-
-        // Debug: Check the input values
-        Debug.Log($"Input received: {input}, Move Direction: {moveDirection}");
-
-        // Check if there's a valid move direction and the player is not currently moving
-        if (moveDirection != Vector2Int.zero && !isMoving)
+        // Capture input for directional movement
+        if (Input.GetKey(KeyCode.W))
         {
-            Vector2Int newPos = currentPos + moveDirection;
+            inputDirection = Vector2Int.up;
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            inputDirection = Vector2Int.down;
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            inputDirection = Vector2Int.left;
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            inputDirection = Vector2Int.right;
+        }
 
+        if (inputDirection != Vector2Int.zero)
+        {
+            Vector2Int newPos = currentPos + inputDirection;
             if (IsValidPosition(newPos))
             {
                 currentPos = newPos;
                 targetPos = new Vector3(currentPos.x * gridSystem.UnityGridSize, 0, currentPos.y * gridSystem.UnityGridSize);
-                isMoving = true; // Start moving towards the new position
-                Debug.Log($"Moving to new position: {targetPos}"); // Debug: Check target position
+                isMoving = true; // Start moving
             }
         }
     }
 
     private void SmoothMove()
     {
-        movement.MoveTo(targetPos, transform); // Move the player towards the target position
+        // Move the player towards the target position
+        movement.MoveTo(targetPos, transform);
 
         // Check if the player has reached the target position
         if (movement.IsAtTarget(targetPos, transform))
         {
             UpdateNodeColor(); // Update node ownership when reaching the new tile
             isMoving = false; // Stop moving
+
+            // Immediately check if the key is still pressed to continue moving
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+            {
+                HandleInput(); // Continue moving in the direction if the key is held
+            }
         }
 
         // Smoothly rotate the player towards the target direction
         Vector3 direction = targetPos - transform.position;
-        movement.RotateTowards(direction, transform); // Rotate towards the target
+        movement.RotateTowards(direction, transform);
     }
 
     private bool IsValidPosition(Vector2Int position)
@@ -91,6 +103,7 @@ public class PlayerMovement : MonoBehaviour
         );
         targetPos = new Vector3(currentPos.x * gridSystem.UnityGridSize, 0, currentPos.y * gridSystem.UnityGridSize);
         transform.position = targetPos; // Set the initial position
+        UpdateNodeColor();
     }
 
     private void UpdateNodeColor()
@@ -102,3 +115,5 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 }
+
+ 

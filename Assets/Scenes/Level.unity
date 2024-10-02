@@ -7734,23 +7734,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f80a6e9d7e410a6428b6f0f62dd43985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerColors:
-  - r: 0.19103774
-    g: 0.6348077
-    b: 0.764151
-    a: 0
-  - r: 0.76336056
-    g: 0.7647059
-    b: 0.19215685
-    a: 0
-  - r: 0.7647059
-    g: 0.23055807
-    b: 0.19215685
-    a: 0
-  - r: 0.22726628
-    g: 0.7647059
-    b: 0.19215685
-    a: 0
 --- !u!4 &1833228088
 Transform:
   m_ObjectHideFlags: 0
@@ -8967,7 +8950,6 @@ GameObject:
   - component: {fileID: 1141298962}
   - component: {fileID: 919132148505763928}
   - component: {fileID: 919132148505763929}
-  - component: {fileID: 919132148505763930}
   m_Layer: 0
   m_Name: Wizard
   m_TagString: Untagged
@@ -8987,6 +8969,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d10efcaa108a6a8429927ab0b024029f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerData: {fileID: 11400000, guid: 5366d89cd40ed90498f93c5764e18296, type: 2}
 --- !u!114 &919132148505763929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9000,36 +8983,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerData: {fileID: 11400000, guid: 85a4ec7067d0a484a8d6ff8e16adde7d, type: 2}
---- !u!114 &919132148505763930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132148505763927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: cee05bf996e029c47a018c9a7d53c9b8, type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1 &1154686779738227062
 GameObject:
   m_ObjectHideFlags: 0

@@ -54,6 +54,13 @@ public class GridSystem : MonoBehaviour
         return new Node(coordinates, tile);
     }
 
+    public bool IsValidPosition(Vector2Int position)
+    {
+        if (GetNodeAtPosition(position)
+        return GetNodeAtPosition(position) != null;  
+
+    }
+
     public Node GetNodeAtPosition(Vector2Int position)
     {
         if (grid.ContainsKey(position))

@@ -6,6 +6,8 @@ public class Node
     public Tile Tile { get; private set; }
     public PlayerData Owner { get; private set; }
 
+
+
     // Color property updates the tile when changed
     private Color nodeColor;
     public Color NodeColor
@@ -32,4 +34,6 @@ public class Node
     }
 
     public void SetColor(Color color) { NodeColor =  color; }
+
+
 }
