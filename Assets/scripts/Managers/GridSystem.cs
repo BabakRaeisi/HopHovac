@@ -41,12 +41,14 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    Vector2Int GetTileCoordinates(Vector3 position)
+    public Vector2Int GetTileCoordinates(Vector3 position)
     {
-        return new Vector2Int(
+        Vector2Int coordinates = new Vector2Int(
             Mathf.RoundToInt(position.x / unityGridSize),
             Mathf.RoundToInt(position.z / unityGridSize)
         );
+        Debug.Log($"World position {position} -> Grid coordinates {coordinates}");
+        return coordinates;
     }
 
     Node CreateNode(Vector2Int coordinates, Tile tile)
@@ -54,17 +56,22 @@ public class GridSystem : MonoBehaviour
         return new Node(coordinates, tile);
     }
 
-    public bool isValidPosition(Vector2Int targetPosition)
+    public bool isValidPosition(Vector3 position)
     {
-        Node targetNode = GetNodeAtPosition(targetPosition);
+        Vector2Int targetPosition = GetTileCoordinates(position);  // Convert to grid coordinates
+        Node targetNode = GetNodeAtPosition(targetPosition);       // Retrieve the node at the target position
+
+        Debug.Log($"Checking validity of position: {targetPosition}. Is occupied: {targetNode?.isOccupied ?? true}");
 
         if (targetNode == null)
         {
+            Debug.Log($"Invalid position: {targetPosition} (no node found)");
             return false; // Out of bounds or invalid position
         }
 
         if (targetNode.isOccupied)
         {
+            Debug.Log($"Position: {targetPosition} is occupied.");
             return false; // Tile is occupied, so the position is not valid
         }
 

@@ -7,8 +7,6 @@ public class Tile : MonoBehaviour
     [SerializeField]
     private Renderer tileRenderer;
 
-   
-
     public void SetColor(Color newColor)
     {
         if (tileRenderer != null)
