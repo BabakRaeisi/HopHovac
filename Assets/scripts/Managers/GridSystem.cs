@@ -8,7 +8,7 @@ public class GridSystem : MonoBehaviour
     public int UnityGridSize { get { return unityGridSize; } }
 
     [SerializeField] List<GameObject> tileGameObjects;  // Manually assign these in the editor
-    Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
+    [SerializeField] Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
     public Dictionary<Vector2Int, Node> Grid { get { return grid; } }
 
     void Awake()
@@ -55,13 +55,23 @@ public class GridSystem : MonoBehaviour
     {
         return new Node(coordinates, tile);
     }
-
+    public virtual void SetNodeOccupied(Vector2Int position, bool isOccupied)
+    {
+        if (grid.ContainsKey(position))  // Check if the node exists in the dictionary
+        {
+            grid[position].IsOccupied=isOccupied ;  // Set the occupancy status based on the boolean
+            Debug.Log($"{(isOccupied ? "Occupied" : "Unoccupied")} node at position {position}");
+        }
+        else
+        {
+            Debug.LogError($"No node found at position {position} to set occupancy");
+        }
+    }
+     
     public bool isValidPosition(Vector3 position)
     {
         Vector2Int targetPosition = GetTileCoordinates(position);  // Convert to grid coordinates
         Node targetNode = GetNodeAtPosition(targetPosition);       // Retrieve the node at the target position
-
-        Debug.Log($"Checking validity of position: {targetPosition}. Is occupied: {targetNode?.isOccupied ?? true}");
 
         if (targetNode == null)
         {
@@ -69,7 +79,7 @@ public class GridSystem : MonoBehaviour
             return false; // Out of bounds or invalid position
         }
 
-        if (targetNode.isOccupied)
+        if (targetNode.IsOccupied)  // Check if the node is already occupied
         {
             Debug.Log($"Position: {targetPosition} is occupied.");
             return false; // Tile is occupied, so the position is not valid
@@ -78,7 +88,7 @@ public class GridSystem : MonoBehaviour
         return true; // Position is valid and tile is free
     }
 
-    public Node GetNodeAtPosition(Vector2Int position)
+    public virtual Node GetNodeAtPosition(Vector2Int position)
     {
         if (grid.ContainsKey(position))
         {
@@ -91,7 +101,7 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    public Node GetNodeFromWorldPosition(Vector3 worldPosition) // I dont remember why I had made this 
+    public virtual Node GetNodeAtPosition(Vector3 worldPosition)
     {
         Vector2Int gridPosition = new Vector2Int(
             Mathf.RoundToInt(worldPosition.x / unityGridSize),

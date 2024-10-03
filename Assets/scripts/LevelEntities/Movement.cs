@@ -47,7 +47,8 @@ public class Movement : MonoBehaviour
         Node currentNode = gridSystem.GetNodeAtPosition(gridPos);
         if (currentNode != null)
         {
-            currentNode.SetOccupied(true);
+            Vector2Int pos = GetGridPosition(transform.position);
+            gridSystem.SetNodeOccupied(pos, true);  
             UpdateNodeColor(gridPos); // Update the tile's color to reflect player ownership
         }
 
@@ -76,26 +77,28 @@ public class Movement : MonoBehaviour
             Mathf.RoundToInt(worldPosition.z / gridSystem.UnityGridSize)
         );
     }
-    public void SmoothMove(Transform transform)
+   public void SmoothMove(Vector3 newPosition)
     {
-        MoveTo(targetPos, transform);
+        // Assuming you have access to the player's current position and the grid
 
-        if (IsAtTarget(targetPos, transform))
+        // Step 1: Unoccupy the current tile
+        Node currentNode = gridSystem.GetNodeAtPosition(transform.position); // Gets the player's current tile (before moving)
+        if (currentNode != null)
         {
-            // Get the grid position based on the transform position
-            Vector2Int currentPos = GetGridPosition(transform.position);
-
-            // Mark the new node as occupied by this player
-            gridSystem.GetNodeAtPosition(currentPos)?.SetOccupied(true);
-
-            // Handle tile color flipping, ownership, etc.
-            UpdateNodeColor(currentPos);
-
-            isMoving = false; // Stop moving
+            Vector2Int pos = GetGridPosition(transform.position);
+            gridSystem.SetNodeOccupied(pos ,false ); // Custom function to mark the tile as unoccupied
         }
 
-        Vector3 direction = targetPos - transform.position;
-        RotateTowards(direction, transform);
+        // Step 2: Move the player to the new position
+        MoveTo(newPosition,this.transform); // The function that moves the player, potentially using Lerp
+
+        // Step 3: Occupy the new tile
+        Node newNode = gridSystem.GetNodeAtPosition(newPosition); // Gets the new tile
+        if (newNode != null)
+        {
+            Vector2Int pos = GetGridPosition(newPosition);
+            gridSystem.SetNodeOccupied(pos, true); // Custom function to mark the tile as unoccupied
+        }
     }
 
     public void SetTarget(Vector3 newTargetPos)

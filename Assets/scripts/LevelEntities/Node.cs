@@ -1,19 +1,20 @@
+using System;
 using UnityEngine;
 
+[Serializable]
 public class Node
 {
     public Vector2Int Coordinates { get; private set; }
     public Tile Tile { get; private set; }
     public PlayerData Owner { get; private set; }
 
-    public bool isOccupied = false;
+    public bool IsOccupied { get { return isOccupied; } set { isOccupied = value; }  }
 
-    public void SetOccupied(bool state)
-    {
-        isOccupied = state;
-    }
+
 
     // Color property updates the tile when changed
+
+    private bool isOccupied; 
     private Color nodeColor;
     public Color NodeColor
     {
@@ -29,7 +30,8 @@ public class Node
     {
         Coordinates = coordinates;
         Tile = tile;
-        NodeColor = Color.white; // Default tile color
+        NodeColor = Color.white; 
+        isOccupied = false;
     }
 
     public void SetOwner(PlayerData player)

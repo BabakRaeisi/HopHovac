@@ -26,7 +26,7 @@ public class AIMovement : MonoBehaviour
         }
         else
         {
-            movement.SmoothMove(transform); // Continue moving towards the target position
+            movement.SmoothMove(transform.position); // Continue moving towards the target position
         }
     }
 
