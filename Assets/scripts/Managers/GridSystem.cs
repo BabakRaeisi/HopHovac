@@ -12,6 +12,9 @@ public class GridSystem : MonoBehaviour
     [SerializeField] private List<PlayerData> players;  // Players assigned in the Unity editor
     [SerializeField] private Dictionary<PlayerData, Node> playerCurrentNodes = new Dictionary<PlayerData, Node>();  // Dictionary to hold players and their current nodes
 
+
+
+#region InitializeGrid
     void Awake()
     {
         InitializeGrid();
@@ -47,6 +50,38 @@ public class GridSystem : MonoBehaviour
             Debug.LogError("Tile component missing on tile object: " + tileObject.name);
         }
     }
+    // Creates a new Node for the grid
+    Node CreateNode(Vector2Int coordinates, Tile tile)
+    {
+        return new Node(coordinates, tile);
+    }
+    public void AddPlayer(PlayerData player, Vector2Int startPosition)
+    {
+        // Ensure the player is not already in the system
+        if (!playerCurrentNodes.ContainsKey(player))
+        {
+            players.Add(player);  // Add the player to the players list
+        }
+
+        // Retrieve the node at the player's initial position
+        if (grid.TryGetValue(startPosition, out Node startNode))
+        {
+            // Set the node as occupied by the player
+            startNode.IsOccupied = true;
+            startNode.Owner = player;
+
+            // Update the player's current position in the grid system
+            playerCurrentNodes[player] = startNode;
+
+            // Set the player's initial position in PlayerData
+            player.CurrentGridPosition = startPosition;
+        }
+        else
+        {
+            Debug.LogError($"Invalid start position: {startPosition}");
+        }
+    }
+    #endregion
 
     // Converts world position to grid coordinates
     public Vector2Int GetTileCoordinates(Vector3 worldPosition)
@@ -55,12 +90,20 @@ public class GridSystem : MonoBehaviour
         int y = Mathf.RoundToInt(worldPosition.z / unityGridSize);
         return new Vector2Int(x, y);
     }
-
-    // Creates a new Node for the grid
-    Node CreateNode(Vector2Int coordinates, Tile tile)
+    public Node GetNodeAtPosition(Vector2Int position)
     {
-        return new Node(coordinates, tile);
+        if (grid.TryGetValue(position, out Node node))
+        {
+            return node;  // Return the node if it exists at the given position
+        }
+        else
+        {
+            Debug.LogWarning($"No node found at position: {position}");
+            return null;  // Return null if no node is found at the given position
+        }
     }
+
+
 
     // Check if the target position is within grid boundaries and the node is not occupied
     public bool IsValidPosition(Vector2Int newCoords)
@@ -92,32 +135,7 @@ public class GridSystem : MonoBehaviour
         }
         return false;  // Move failed (target node is occupied or out of bounds)
     }
-    public void AddPlayer(PlayerData player, Vector2Int startPosition)
-    {
-        // Ensure the player is not already in the system
-        if (!playerCurrentNodes.ContainsKey(player))
-        {
-            players.Add(player);  // Add the player to the players list
-        }
-
-        // Retrieve the node at the player's initial position
-        if (grid.TryGetValue(startPosition, out Node startNode))
-        {
-            // Set the node as occupied by the player
-            startNode.IsOccupied = true;
-            startNode.Owner = player;
-
-            // Update the player's current position in the grid system
-            playerCurrentNodes[player] = startNode;
-
-            // Set the player's initial position in PlayerData
-            player.CurrentGridPosition = startPosition;
-        }
-        else
-        {
-            Debug.LogError($"Invalid start position: {startPosition}");
-        }
-    }
+   
     
 
     // Example method to return player's starting position (can be hardcoded or dynamic)
