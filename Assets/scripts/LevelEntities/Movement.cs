@@ -37,6 +37,14 @@ public class Movement : MonoBehaviour
 
     public void MoveTo(Vector2Int direction)
     {
+        // Set smooth rotation to face the new direction regardless of whether the move is valid
+        Vector3 directionVector = new Vector3(direction.x, 0, direction.y);
+        targetRotation = Quaternion.LookRotation(directionVector);
+        isRotating = true;
+
+         
+
+        // Attempt to move the player to the target grid position
         Vector2Int targetGridPos = currentGridPos + direction;
 
         // Ask GridSystem if the move is valid and proceed
@@ -45,16 +53,14 @@ public class Movement : MonoBehaviour
             // Perform the actual movement if the position is valid
             targetPos = CalculateWorldPosition(targetGridPos);
             isMoving = true;
-
-            // Set smooth rotation to face the new direction
-            Vector3 directionVector = new Vector3(direction.x, 0, direction.y);
-            targetRotation = Quaternion.LookRotation(directionVector);
-            isRotating = true;
-
-            // Update the player's current grid position in PlayerData
-            playerData.CurrentGridPosition = targetGridPos;
+        }
+        else
+        {
+            // Even if the move is not allowed, the player still rotates to face the direction
+            Debug.Log("Move not allowed, but player rotated to face the direction.");
         }
     }
+
 
     private void Update()
     {
@@ -85,16 +91,19 @@ public class Movement : MonoBehaviour
 
     private void SmoothRotate()
     {
-        // Smoothly rotate towards the target direction using SpeedRotation from PlayerData
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * playerData.SpeedRotation);
+        // Smoothly rotate towards the target direction
+        
 
-        // Adjust this threshold value to ensure smooth transitions without sudden snapping.
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * playerData.SpeedRotation);
+
         if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
         {
             transform.rotation = targetRotation;
             isRotating = false;  // Stop rotating once the target rotation is achieved
+           
         }
     }
+
 
     private Vector2Int GetGridPositionFromWorld(Vector3 worldPosition)
     {

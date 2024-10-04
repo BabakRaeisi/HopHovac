@@ -19,8 +19,7 @@ public class GridSystem : MonoBehaviour
 
     void Start()
     {
-       
-        InitializePlayerPositions();
+      
     }
 
     // Initializes the grid by adding all nodes (tiles)
@@ -50,13 +49,11 @@ public class GridSystem : MonoBehaviour
     }
 
     // Converts world position to grid coordinates
-    public Vector2Int GetTileCoordinates(Vector3 position)
+    public Vector2Int GetTileCoordinates(Vector3 worldPosition)
     {
-        Vector2Int coordinates = new Vector2Int(
-            Mathf.RoundToInt(position.x / unityGridSize),
-            Mathf.RoundToInt(position.z / unityGridSize)
-        );
-        return coordinates;
+        int x = Mathf.RoundToInt(worldPosition.x / unityGridSize);
+        int y = Mathf.RoundToInt(worldPosition.z / unityGridSize);
+        return new Vector2Int(x, y);
     }
 
     // Creates a new Node for the grid
@@ -95,31 +92,38 @@ public class GridSystem : MonoBehaviour
         }
         return false;  // Move failed (target node is occupied or out of bounds)
     }
-
-    // Initialize players and assign them starting positions in the grid
-    private void InitializePlayerPositions()
+    public void AddPlayer(PlayerData player, Vector2Int startPosition)
     {
-        foreach (PlayerData player in players)
+        // Ensure the player is not already in the system
+        if (!playerCurrentNodes.ContainsKey(player))
         {
-            // Find the starting node for each player
-            Vector2Int startPosition = GetPlayerStartingPosition(player);  // Get starting position
-            Node startNode = grid[startPosition];  // Retrieve the node at that position
+            players.Add(player);  // Add the player to the players list
+        }
 
-            // Set the node as occupied by this player and assign ownership
+        // Retrieve the node at the player's initial position
+        if (grid.TryGetValue(startPosition, out Node startNode))
+        {
+            // Set the node as occupied by the player
             startNode.IsOccupied = true;
-            startNode.Owner = player;  // Set the owner of the node to the player
-            playerCurrentNodes.Add(player, startNode);  // Add to the dictionary
+            startNode.Owner = player;
+
+            // Update the player's current position in the grid system
+            playerCurrentNodes[player] = startNode;
 
             // Set the player's initial position in PlayerData
             player.CurrentGridPosition = startPosition;
         }
+        else
+        {
+            Debug.LogError($"Invalid start position: {startPosition}");
+        }
     }
+    
 
     // Example method to return player's starting position (can be hardcoded or dynamic)
-    private Vector2Int GetPlayerStartingPosition(PlayerData player)
+    private Vector2Int GetPlayerStartingPosition(Transform player)
     {
-        // Return a different starting position based on player data
-        // Example: return new Vector2Int(0, 0) for Player 1, new Vector2Int(1, 0) for Player 2, etc.
-        return new Vector2Int(0, 0);  // Modify this as needed for actual starting positions
+         
+        return  GetTileCoordinates(player.transform.position);  // Use the actual position from the scene
     }
 }
