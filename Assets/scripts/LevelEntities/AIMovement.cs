@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class AIMovement : MonoBehaviour
 {
-    private Movement movement; // Shared Movement logic
+   /* private Movement movement; // Shared Movement logic
 
     private Vector2Int currentPos; // Current grid position
 
@@ -48,5 +48,5 @@ public class AIMovement : MonoBehaviour
         {
             Debug.Log("AI attempted to move outside of grid to: " + newPos);
         }
-    }
+    }*/
 }

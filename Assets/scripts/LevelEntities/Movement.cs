@@ -7,124 +7,109 @@ public class Movement : MonoBehaviour
 
     private Vector3 targetPos; // Target position to move towards
     private bool isMoving = false; // Track whether the character is currently moving
+    private bool isRotating = false; // Track whether the character is currently rotating
     float gridSize;
+    private Quaternion targetRotation; // Target rotation when changing direction
+
+    private Vector2Int currentGridPos; // Current position in grid coordinates
 
     private void Awake()
     {
         gridSystem = FindObjectOfType<GridSystem>(); // Get the GridSystem instance
         gridSize = gridSystem.UnityGridSize;
     }
-    
-    public void MoveTo(Vector3 targetPos, Transform transform)
+    private void Start()
     {
-        if (gridSystem.isValidPosition(targetPos))
-        {
-            // Proceed with movement if the position is valid
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * playerData.Speed);
-        }
-        else
-        {
-            // If the position is invalid, reset the movement state
-            Debug.Log("Invalid target position: " + targetPos);
-            isMoving = false;  // Stop the movement to allow new input
-            return;  // Exit the function early to avoid further calculations
-        }
+        InitializePosition(this.transform);
     }
-    public bool IsValidPosition(Vector3 position)
+    public void InitializePosition(Transform playerTransform)
     {
-        return gridSystem.isValidPosition(position); // Calls the GridSystem's isValidPosition method
-    }
-    public void InitializePosition(Transform transform)
-    {
-        Vector3 initialPosition = transform.position;
-        Vector2Int gridPos = GetGridPosition(initialPosition);
+        // Calculate the grid position based on the player's starting world position
+        currentGridPos = GetGridPositionFromWorld(playerTransform.position);
+        targetPos = playerTransform.position;
 
-        // Set the transform's position based on the grid-aligned coordinates
-        targetPos = new Vector3(gridPos.x * gridSystem.UnityGridSize, 0, gridPos.y * gridSystem.UnityGridSize);
-        transform.position = targetPos;  // Align the object with the grid
+        // Mark the initial position in the grid system as occupied by this player
+        gridSystem.TryMovePlayer(playerData, currentGridPos);
 
-        // Mark the initial node as occupied
-        Node currentNode = gridSystem.GetNodeAtPosition(gridPos);
-        if (currentNode != null)
-        {
-            Vector2Int pos = GetGridPosition(transform.position);
-            gridSystem.SetNodeOccupied(pos, true);  
-            UpdateNodeColor(gridPos); // Update the tile's color to reflect player ownership
-        }
-
-        Debug.Log($"Initialized at grid position {gridPos} and world position {targetPos}");
+        // Set the player's current position in PlayerData
+        playerData.CurrentGridPosition = currentGridPos;
     }
 
-    public bool IsAtTarget(Vector3 targetPos, Transform transform)
+    public void MoveTo(Vector2Int direction)
     {
-        // Check if the current position is close enough to the target position
-        return Vector3.Distance(transform.position, targetPos) < 0.1f;
-    }
+        Vector2Int targetGridPos = currentGridPos + direction;
 
-    public void RotateTowards(Vector3 targetDirection, Transform transform)
-    {
-        // Smoothly rotate towards the specified direction using rotationSpeed from PlayerData
-        if (targetDirection != Vector3.zero && playerData != null)
+        // Ask GridSystem if the move is valid and proceed
+        if (gridSystem.TryMovePlayer(playerData, targetGridPos))
         {
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * playerData.RotationSpeed);
-        }
-    }
-    public Vector2Int GetGridPosition(Vector3 worldPosition)
-    {
-        return new Vector2Int(
-            Mathf.RoundToInt(worldPosition.x / gridSystem.UnityGridSize),
-            Mathf.RoundToInt(worldPosition.z / gridSystem.UnityGridSize)
-        );
-    }
-   public void SmoothMove(Vector3 newPosition)
-    {
-        // Assuming you have access to the player's current position and the grid
+            // Perform the actual movement if the position is valid
+            targetPos = CalculateWorldPosition(targetGridPos);
+            isMoving = true;
 
-        // Step 1: Unoccupy the current tile
-        Node currentNode = gridSystem.GetNodeAtPosition(transform.position); // Gets the player's current tile (before moving)
-        if (currentNode != null)
-        {
-            Vector2Int pos = GetGridPosition(transform.position);
-            gridSystem.SetNodeOccupied(pos ,false ); // Custom function to mark the tile as unoccupied
-        }
+            // Set smooth rotation to face the new direction
+            Vector3 directionVector = new Vector3(direction.x, 0, direction.y);
+            targetRotation = Quaternion.LookRotation(directionVector);
+            isRotating = true;
 
-        // Step 2: Move the player to the new position
-        MoveTo(newPosition,this.transform); // The function that moves the player, potentially using Lerp
-
-        // Step 3: Occupy the new tile
-        Node newNode = gridSystem.GetNodeAtPosition(newPosition); // Gets the new tile
-        if (newNode != null)
-        {
-            Vector2Int pos = GetGridPosition(newPosition);
-            gridSystem.SetNodeOccupied(pos, true); // Custom function to mark the tile as unoccupied
+            // Update the player's current grid position in PlayerData
+            playerData.CurrentGridPosition = targetGridPos;
         }
     }
 
-    public void SetTarget(Vector3 newTargetPos)
+    private void Update()
     {
-        targetPos = newTargetPos;
-        isMoving = true;
-        Debug.Log("Set new target position: " + newTargetPos);
+        if (isMoving)
+        {
+            SmoothMove();
+        }
+        if (isRotating)
+        {
+            SmoothRotate();
+        }
+    }
+
+    private void SmoothMove()
+    {
+        // Move towards the target position
+        transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * playerData.Speed);
+        if (Vector3.Distance(transform.position, targetPos) < 0.01f)
+        {
+            transform.position = targetPos;
+            isMoving = false;
+            currentGridPos = GetGridPositionFromWorld(targetPos);  // Update the grid position once movement is finished
+
+            // Update PlayerData with the latest position
+            playerData.CurrentGridPosition = currentGridPos;
+        }
+    }
+
+    private void SmoothRotate()
+    {
+        // Smoothly rotate towards the target direction using SpeedRotation from PlayerData
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * playerData.SpeedRotation);
+
+        // Adjust this threshold value to ensure smooth transitions without sudden snapping.
+        if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
+        {
+            transform.rotation = targetRotation;
+            isRotating = false;  // Stop rotating once the target rotation is achieved
+        }
+    }
+
+    private Vector2Int GetGridPositionFromWorld(Vector3 worldPosition)
+    {
+        int x = Mathf.RoundToInt(worldPosition.x / gridSize);
+        int y = Mathf.RoundToInt(worldPosition.z / gridSize);
+        return new Vector2Int(x, y);
+    }
+
+    private Vector3 CalculateWorldPosition(Vector2Int gridPosition)
+    {
+        return new Vector3(gridPosition.x * gridSize, transform.position.y, gridPosition.y * gridSize);
     }
 
     public bool IsMoving()
     {
         return isMoving;
-    }
-
-    public Vector3 GetGridAdjustedPosition(Vector2Int gridPosition)
-    {
-        // Assume UnityGridSize is managed in GridSystem
-        return new Vector3(gridPosition.x * gridSize, 0, gridPosition.y * gridSize); // Adjust position based on the grid size
-    }
-    public void UpdateNodeColor(Vector2Int currentPos)
-    {
-        Node currentNode = gridSystem.GetNodeAtPosition(currentPos);
-        if (currentNode != null)
-        {
-            currentNode.SetOwner(playerData); // Update node color and ownership
-            Debug.Log("Tile at " + currentPos + " now belongs to: " + playerData.PlayerColor);
-        }
     }
 }

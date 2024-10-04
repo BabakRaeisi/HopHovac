@@ -17,7 +17,16 @@ public class PlayerData : ScriptableObject
 
 
     [SerializeField]
-    private float rotationSpeed = 720f; // Speed at which the player rotates
+    private float speedRotation = 5f; // Speed at which the player rotates   
+   [SerializeField]
+    private Vector2Int currentGridPosition; // Private field to store the current grid position
+
+    // Public property to access and modify current grid position
+    public Vector2Int CurrentGridPosition
+    {
+        get { return currentGridPosition; } // Getter to return the current value
+        set { currentGridPosition = value; } // Setter to update the value
+    }
 
     // Public properties to expose private fields
     public string PlayerName
@@ -37,6 +46,7 @@ public class PlayerData : ScriptableObject
         get => playerColor;
         private set => playerColor = value; // Can set internally if needed
     }
+  
 
     public int Points
     {
@@ -46,10 +56,10 @@ public class PlayerData : ScriptableObject
 
  
 
-    public float RotationSpeed
+    public float SpeedRotation
     {
-        get => rotationSpeed;
-        private set => rotationSpeed = value; // Can set internally if needed
+        get => speedRotation;
+        private set => speedRotation = value; // Can set internally if needed
     }
 
     // Method to add points

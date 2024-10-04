@@ -8,14 +8,22 @@ public class GridSystem : MonoBehaviour
     public int UnityGridSize { get { return unityGridSize; } }
 
     [SerializeField] List<GameObject> tileGameObjects;  // Manually assign these in the editor
-    [SerializeField] Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
-    public Dictionary<Vector2Int, Node> Grid { get { return grid; } }
+    [SerializeField] Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();  // Grid dictionary to hold nodes
+    [SerializeField] private List<PlayerData> players;  // Players assigned in the Unity editor
+    [SerializeField] private Dictionary<PlayerData, Node> playerCurrentNodes = new Dictionary<PlayerData, Node>();  // Dictionary to hold players and their current nodes
 
     void Awake()
     {
         InitializeGrid();
     }
 
+    void Start()
+    {
+       
+        InitializePlayerPositions();
+    }
+
+    // Initializes the grid by adding all nodes (tiles)
     void InitializeGrid()
     {
         foreach (GameObject tileObject in tileGameObjects)
@@ -24,6 +32,7 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    // Adds a tile to the grid and sets its coordinates
     void AddNodeToGrid(GameObject tileObject)
     {
         Tile tile = tileObject.GetComponent<Tile>();
@@ -31,9 +40,8 @@ public class GridSystem : MonoBehaviour
         {
             Vector2Int coordinates = GetTileCoordinates(tileObject.transform.position);
             Node node = CreateNode(coordinates, tile);
+            node.IsOccupied = false;  // Initialize node as unoccupied
             grid.Add(coordinates, node);
-
-            Debug.Log($"Added Node at {coordinates} for tile: {tileObject.name}");
         }
         else
         {
@@ -41,73 +49,77 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    // Converts world position to grid coordinates
     public Vector2Int GetTileCoordinates(Vector3 position)
     {
         Vector2Int coordinates = new Vector2Int(
             Mathf.RoundToInt(position.x / unityGridSize),
             Mathf.RoundToInt(position.z / unityGridSize)
         );
-        Debug.Log($"World position {position} -> Grid coordinates {coordinates}");
         return coordinates;
     }
 
+    // Creates a new Node for the grid
     Node CreateNode(Vector2Int coordinates, Tile tile)
     {
         return new Node(coordinates, tile);
     }
-    public virtual void SetNodeOccupied(Vector2Int position, bool isOccupied)
+
+    // Check if the target position is within grid boundaries and the node is not occupied
+    public bool IsValidPosition(Vector2Int newCoords)
     {
-        if (grid.ContainsKey(position))  // Check if the node exists in the dictionary
-        {
-            grid[position].IsOccupied=isOccupied ;  // Set the occupancy status based on the boolean
-            Debug.Log($"{(isOccupied ? "Occupied" : "Unoccupied")} node at position {position}");
-        }
-        else
-        {
-            Debug.LogError($"No node found at position {position} to set occupancy");
-        }
-    }
-     
-    public bool isValidPosition(Vector3 position)
-    {
-        Vector2Int targetPosition = GetTileCoordinates(position);  // Convert to grid coordinates
-        Node targetNode = GetNodeAtPosition(targetPosition);       // Retrieve the node at the target position
-
-        if (targetNode == null)
-        {
-            Debug.Log($"Invalid position: {targetPosition} (no node found)");
-            return false; // Out of bounds or invalid position
-        }
-
-        if (targetNode.IsOccupied)  // Check if the node is already occupied
-        {
-            Debug.Log($"Position: {targetPosition} is occupied.");
-            return false; // Tile is occupied, so the position is not valid
-        }
-
-        return true; // Position is valid and tile is free
+        return grid.ContainsKey(newCoords) && !grid[newCoords].IsOccupied;
     }
 
-    public virtual Node GetNodeAtPosition(Vector2Int position)
+    // Try to move player to the specified coordinates
+    public bool TryMovePlayer(PlayerData player, Vector2Int newCoords)
     {
-        if (grid.ContainsKey(position))
+        if (IsValidPosition(newCoords))
         {
-            return grid[position];
+            // Get the current node of the player
+            if (playerCurrentNodes.TryGetValue(player, out Node currentNode))
+            {
+                currentNode.IsOccupied = false;  // Unoccupy the current node
+            }
+
+            // Move player to the new node
+            Node targetNode = grid[newCoords];
+            targetNode.IsOccupied = true;
+            targetNode.Owner = player;  // Update the node's owner to the current player
+            playerCurrentNodes[player] = targetNode;  // Update the player's current node
+
+            // Update player's current grid position
+            player.CurrentGridPosition = newCoords;
+
+            return true;  // Move successful
         }
-        else
+        return false;  // Move failed (target node is occupied or out of bounds)
+    }
+
+    // Initialize players and assign them starting positions in the grid
+    private void InitializePlayerPositions()
+    {
+        foreach (PlayerData player in players)
         {
-            Debug.LogError($"No node found at position {position}");
-            return null;
+            // Find the starting node for each player
+            Vector2Int startPosition = GetPlayerStartingPosition(player);  // Get starting position
+            Node startNode = grid[startPosition];  // Retrieve the node at that position
+
+            // Set the node as occupied by this player and assign ownership
+            startNode.IsOccupied = true;
+            startNode.Owner = player;  // Set the owner of the node to the player
+            playerCurrentNodes.Add(player, startNode);  // Add to the dictionary
+
+            // Set the player's initial position in PlayerData
+            player.CurrentGridPosition = startPosition;
         }
     }
 
-    public virtual Node GetNodeAtPosition(Vector3 worldPosition)
+    // Example method to return player's starting position (can be hardcoded or dynamic)
+    private Vector2Int GetPlayerStartingPosition(PlayerData player)
     {
-        Vector2Int gridPosition = new Vector2Int(
-            Mathf.RoundToInt(worldPosition.x / unityGridSize),
-            Mathf.RoundToInt(worldPosition.z / unityGridSize)
-        );
-
-        return GetNodeAtPosition(gridPosition);
+        // Return a different starting position based on player data
+        // Example: return new Vector2Int(0, 0) for Player 1, new Vector2Int(1, 0) for Player 2, etc.
+        return new Vector2Int(0, 0);  // Modify this as needed for actual starting positions
     }
 }

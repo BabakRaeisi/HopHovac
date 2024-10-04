@@ -16,4 +16,5 @@ MonoBehaviour:
   speed: 5
   playerColor: {r: 0.7921569, g: 0.17647056, b: 0.23846689, a: 1}
   points: 0
-  rotationSpeed: 720
+  speedRotation: 5
+  currentGridPosition: {x: 0, y: 0}
