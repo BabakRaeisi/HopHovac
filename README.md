@@ -1,4 +1,26 @@
-# PogoPandemonium
-Pogo Pandemonium Mini-Game Details:Objective: The main goal in Pogo Pandemonium is to collect as many points as possible by covering squares on a grid with your color. Players achieve this by bouncing around on pogo sticks, changing the color of the squares they land on.Gameplay Mechanics:Point Collection: Players collect points by forming squares or rectangles of their color. When a player boxes in an area, they receive points for each square within that area.Power-Ups: The game includes various power-ups and items that can help players or hinder their opponents, adding an extra layer of strategy and chaos.Obstacles: There are also obstacles and other elements that can make it more challenging to move around and claim squares.
-Characters: Players can choose from different characters, each with unique animations and sometimes slight differences in gameplay.
-Multiplayer Mode: The game can be played with multiple players, making it a fun and competitive experience. It's designed to be fast-paced and chaotic, which fits with the "pandemonium" theme.
+# Project Name
+
+## Overview
+This is a grid-based game where players and AI-controlled opponents move around the grid, capturing tiles and collecting pickups to score points. The goal is to outsmart and outperform opponents to control the most tiles.
+
+## Features
+- Player-controlled movement
+- AI-controlled opponents
+- Tile-based grid system
+- Pathfinding algorithm for AI
+- Power-ups and pickups (to be implemented)
+
+## System Architecture
+- **GridSystem**: Manages the grid, stores Nodes in a dictionary, and handles tile occupancy.
+- **Movement**: Handles player and AI movement on the grid.
+- **AI Logic**: Implements decision-making and movement for AI players, including pathfinding and tile prioritization.
+
+## Setup Instructions
+1. Clone the repository: `git clone https://github.com/yourusername/yourproject.git`
+2. Open the project in Unity.
+3. Run the scene to start the game.
+
+## Future Enhancements
+- Add more intelligent AI pathfinding.
+- Introduce more game modes and power-ups.
+
