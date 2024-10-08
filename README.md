@@ -16,7 +16,7 @@ This is a grid-based game where players and AI-controlled opponents move around 
 - **AI Logic**: Implements decision-making and movement for AI players, including pathfinding and tile prioritization.
 
 ## Setup Instructions
-1. Clone the repository: `git clone https://github.com/yourusername/yourproject.git`
+1. Clone the repository
 2. Open the project in Unity.
 3. Run the scene to start the game.
 
