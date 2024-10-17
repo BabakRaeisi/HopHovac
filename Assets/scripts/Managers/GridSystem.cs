@@ -103,6 +103,14 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    public Vector3 GetWorldPositionFromGrid(Vector2Int gridPosition)
+    {
+        // Convert grid coordinates to world position
+        float worldX = gridPosition.x * unityGridSize;
+        float worldZ = gridPosition.y * unityGridSize;
+
+        return new Vector3(worldX, 0, worldZ);  // Return the world position, assuming ground is at y = 0
+    }
 
 
     // Check if the target position is within grid boundaries and the node is not occupied
@@ -110,6 +118,8 @@ public class GridSystem : MonoBehaviour
     {
         return grid.ContainsKey(newCoords) && !grid[newCoords].IsOccupied;
     }
+
+
 
     // Try to move player to the specified coordinates
     public bool TryMovePlayer(PlayerData player, Vector2Int newCoords)
@@ -135,8 +145,31 @@ public class GridSystem : MonoBehaviour
         }
         return false;  // Move failed (target node is occupied or out of bounds)
     }
-   
-    
+
+    public Node GetRandomUnoccupiedNode()
+    {
+        List<Vector2Int> keys = new List<Vector2Int>(grid.Keys);  // Get all keys from the dictionary
+        int maxAttempts = 100;  // Prevent infinite loop in case most nodes are occupied
+        int attempts = 0;
+
+        // Randomly select nodes until we find an unoccupied one or reach max attempts
+        while (attempts < maxAttempts)
+        {
+            Vector2Int randomKey = keys[Random.Range(0, keys.Count)];  // Pick a random key
+            Node randomNode = grid[randomKey];  // Get the node associated with the random key
+
+            // Check if the node is unoccupied and doesn't have a collectable
+            if (!randomNode.IsOccupied && !randomNode.HasCollectable)
+            {
+                return randomNode;  // Found a valid node
+            }
+
+            attempts++;  // Increase attempt count to prevent infinite looping
+        }
+
+        Debug.LogWarning("No unoccupied node found after maximum attempts.");
+        return null;  // No unoccupied nodes found after max attempts
+    }
 
     // Example method to return player's starting position (can be hardcoded or dynamic)
     private Vector2Int GetPlayerStartingPosition(Transform player)

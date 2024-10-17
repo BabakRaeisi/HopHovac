@@ -8317,6 +8317,53 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 529599636806352101, guid: 7c5b8c6d8c111c940b63d474e856291a, type: 3}
   m_PrefabInstance: {fileID: 1675061720}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1975045159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1975045161}
+  - component: {fileID: 1975045160}
+  m_Layer: 0
+  m_Name: CollectablePool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1975045160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975045159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d12dd5e75e77a24e9a8094e5ae05bdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Parent>k__BackingField: {fileID: 1975045161}
+  <Prefab>k__BackingField: {fileID: 8572814858893131703, guid: 86fadb797dfc4b84d9f50f22d91cf19f, type: 3}
+  gridSystem: {fileID: 531884413}
+--- !u!4 &1975045161
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975045159}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1982628300 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 529599636806352101, guid: 7c5b8c6d8c111c940b63d474e856291a, type: 3}
@@ -8952,3 +8999,4 @@ SceneRoots:
   - {fileID: 531884412}
   - {fileID: 706599011}
   - {fileID: 121146140}
+  - {fileID: 1975045161}
