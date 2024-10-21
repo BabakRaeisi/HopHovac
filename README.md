@@ -23,4 +23,5 @@ This is a grid-based game where players and AI-controlled opponents move around 
 ## Future Enhancements
 - Add more intelligent AI pathfinding.
 - Introduce more game modes and power-ups.
+  [GamePlay](https://github.com/BabakRaeisi/HopHovac/blob/Master/game.jpg)
 
