@@ -7,6 +7,28 @@ public class Node
     public Vector2Int Coordinates { get; private set; }
     public Tile Tile { get; private set; }
 
+    private Collectable collectable;
+
+    public bool HasCollectable
+    {
+        get { return collectable != null; }  // Check if the node has a collectable
+    }
+
+    public void AssignCollectable(Collectable newCollectable)
+    {
+        collectable = newCollectable;  // Assign a collectable to this node
+    }
+
+    public Collectable GetCollectable()
+    {
+        return collectable;  // Return the collectable assigned to this node
+    }
+
+    public void ClearCollectable()
+    {
+        collectable = null;  // Clear the collectable reference when it is collected
+    }
+
     // Occupied status
     public bool IsOccupied { get { return isOccupied; } set { isOccupied = value; } }
 
@@ -50,4 +72,5 @@ public class Node
     {
         Owner = player;  // This will automatically update the node color
     }
+   
 }
